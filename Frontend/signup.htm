@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<style>
+/* change the style later when we confirm this works - viktor
+input{type=text], input[type=password] {
+	width: 100%;
+	padding: 15px;
+	margin: 5px 0 22px 0;
+	display: inline-block;
+	border: none;
+	background: #f1f1f1;
+}
+input[type=text]:focus, input[type=password]:focus {
+	background-color: #ddd;
+	outline: none;
+}
+input[type=submit] {
+	background-color: #04AA6D;
+	color: white;
+	padding: 12px 20px;
+	border: 5px;
+	border-radius: 9px;
+	cursor: pointer;
+}
+input[type=submit]:hover {
+	background-color: #45a049;
+}
+button {
+	background-color: #04AA6D;
+	color: white;
+	padding: 14px 20px;
+	margin: 8px 0;
+	border: none;
+	cursor: pointer;
+	width: 100%;
+	opacity: 0.75;
+}
+button:hover {
+	opacity:1;
+}
+</style>
+
+<head>
+<title>Sendrr</title>
+</head>
+
+<body>
+
+<form action="action_page.php" method="post">
+	<div class="container">
+		<h1>Sendrr</h1>
+		<h2>Sign up</h2>
+		<hr>
+
+		<label for="email" title="Account name must end in '@sendrr.com'"><b>Account Name</b></label>
+		<input type="text" placeholder="Enter Account Name" name="email" required>
+
+		<label for="pword" title="Password must be at least 8 characters."><b>Password</b></label>
+		<input type="text" placeholder="Password" name="pword" required>
+
+		<label for="rep-pword"><b>Repeat Password</b></label>
+		<input type="text" placeholder="Previously Entered Password" name="rep-pword" required>
+
+		<label for="loc"><b>Region</b></label>
+		<select id="loc" name="loc">
+			<option value="NA">North America</option>
+			<option value="CA">Central America</option>
+			<option value="SA">South America</option>
+			<option value="EEU">Eastern Europe</option>
+			<option value="WEU">Western Europe</option>
+			<option value="SWA">Southwestern Asia</option>
+			<option value="NEA">Northeastern Asia</option>
+			<option value="NAF">Northern Africa</option>
+			<option value="SAF">Southern Africa</option>
+			<option value="OC">Oceania</option>
+		</select>
+
+		<label><b>Remember me</b><input type="checkbox" checked="checked" name="remember"></label>
+
+		<p>By creating an account, you are agreeing to our Terms & Services.</p>
+
+		<div class="clearfix">
+			<button type="button" class="canbt">Cancel</button>
+			<button type="submit" class="signbt">Sign Up</button>
+		</div>
+	</div>
+</form>
+
+</body>
+</html>
+
