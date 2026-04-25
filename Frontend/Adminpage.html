@@ -1,26 +1,101 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Admin Dashboard</title>
-
+<title>Sendrr - Admin Dashboard</title>
 <style>
-body {
-    font-family: Arial;
-    background: #f5f5f5;
-    margin: 40px;
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
-h1 { text-align: center; }
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    min-height: 100vh;
+}
+
+.topbar {
+    background: #333;
+    color: white;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.topbar h1 {
+    font-size: 20px;
+}
+
+.topbar button {
+    background: #04AA6D;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.topbar button:hover {
+    background: #038a58;
+}
+
+.main {
+    padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.panel {
+    background: white;
+    padding: 25px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.panel h2 {
+    margin-bottom: 15px;
+    font-size: 18px;
+    color: #333;
+}
+
+.full-width {
+    background: white;
+    padding: 25px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+input:focus {
+    outline: none;
+    border-color: #04AA6D;
+}
 
 table {
     width: 100%;
     border-collapse: collapse;
-    background: white;
 }
 
 th, td {
     padding: 10px;
     border-bottom: 1px solid #ddd;
+    text-align: left;
+    font-size: 13px;
 }
 
 th {
@@ -28,60 +103,155 @@ th {
     color: white;
 }
 
-textarea {
-    width: 100%;
-    height: 60px;
+tr:hover {
+    background: #f9f9f9;
 }
 </style>
 </head>
-
 <body>
 
-<h1>Admin Dashboard</h1>
+<div class="topbar">
+    <h1>Sendrr — Admin Dashboard</h1>
+    <button onclick="logout()">Log Out</button>
+</div>
 
-<h2>All Emails</h2>
-<input id="search" placeholder="Search emails..." onkeyup="loadEmails()">
+<div class="main">
 
-<table>
-<thead>
-<tr>
-<th>ID</th>
-<th>From</th>
-<th>To</th>
-<th>Subject</th>
-<th>Body</th>
-<th>Date</th>
-</tr>
-</thead>
-<tbody id="emailTable"></tbody>
-</table>
+    <div class="grid">
+
+        <!-- USERS TABLE -->
+        <div class="panel">
+            <h2>Users</h2>
+            <input id="userSearch" placeholder="Search users..." oninput="loadUsers()">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Region</th>
+                        <th>Admin</th>
+                    </tr>
+                </thead>
+                <tbody id="usersBody"></tbody>
+            </table>
+        </div>
+
+        <!-- MESSAGES TABLE -->
+        <div class="panel">
+            <h2>Messages</h2>
+            <input id="messageSearch" placeholder="Search messages..." oninput="loadMessages()">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>From (User ID)</th>
+                        <th>Subject</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="messagesBody"></tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <!-- LOGIN ACTIVITY TABLE -->
+    <div class="full-width">
+        <h2>Login Activity</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Session ID</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>IP Address</th>
+                    <th>Login Time</th>
+                    <th>Active</th>
+                </tr>
+            </thead>
+            <tbody id="sessionsBody"></tbody>
+        </table>
+    </div>
+
+</div>
 
 <script>
-async function loadEmails() {
-    const search = document.getElementById("search").value;
+window.onload = function() {
+    loadUsers();
+    loadMessages();
+    loadSessions();
+}
 
-    const res = await fetch(`/api/messages?search=${search}`);
-    const emails = await res.json();
-
-    const table = document.getElementById("emailTable");
-    table.innerHTML = "";
-
-    emails.forEach(e => {
-        table.innerHTML += `
-        <tr>
-            <td>${e.id}</td>
-            <td>${e.user_id}</td>
-            <td>(hidden)</td>
-            <td>${e.message}</td>
-            <td><textarea readonly>${e.message}</textarea></td>
-            <td>${e.date}</td>
-        </tr>
-        `;
+async function loadUsers() {
+    const search = document.getElementById("userSearch").value;
+    const res = await fetch(`/api/users?search=${search}`);
+    if (res.status === 403) { window.location.href = "/login"; return; }
+    const users = await res.json();
+    const tbody = document.getElementById("usersBody");
+    tbody.innerHTML = "";
+    if (users.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='5' style='text-align:center;color:#aaa;'>No users found</td></tr>";
+        return;
+    }
+    users.forEach(u => {
+        tbody.innerHTML += `<tr>
+            <td>${u.id}</td>
+            <td>${u.name}</td>
+            <td>${u.email}</td>
+            <td>${u.region}</td>
+            <td>${u.is_admin ? "Yes" : "No"}</td>
+        </tr>`;
     });
 }
 
-loadEmails();
-</script>
+async function loadMessages() {
+    const search = document.getElementById("messageSearch").value;
+    const res = await fetch(`/api/messages?search=${search}`);
+    if (res.status === 403) { window.location.href = "/login"; return; }
+    const messages = await res.json();
+    const tbody = document.getElementById("messagesBody");
+    tbody.innerHTML = "";
+    if (messages.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='4' style='text-align:center;color:#aaa;'>No messages found</td></tr>";
+        return;
+    }
+    messages.forEach(m => {
+        tbody.innerHTML += `<tr>
+            <td>${m.id}</td>
+            <td>${m.user_id}</td>
+            <td>${m.message}</td>
+            <td>${m.date}</td>
+        </tr>`;
+    });
+}
 
+async function loadSessions() {
+    const res = await fetch("/api/sessions");
+    if (res.status === 403) { window.location.href = "/login"; return; }
+    const sessions = await res.json();
+    const tbody = document.getElementById("sessionsBody");
+    tbody.innerHTML = "";
+    if (sessions.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='6' style='text-align:center;color:#aaa;'>No login activity yet</td></tr>";
+        return;
+    }
+    sessions.forEach(s => {
+        tbody.innerHTML += `<tr>
+            <td>${s.session_id}</td>
+            <td>${s.username}</td>
+            <td>${s.email}</td>
+            <td>${s.ip_address}</td>
+            <td>${s.login_at}</td>
+            <td>${s.is_active ? "Yes" : "No"}</td>
+        </tr>`;
+    });
+}
+
+async function logout() {
+    await fetch("/api/logout", { method: "POST" });
+    window.location.href = "/login";
+}
+</script>
 </body>
 </html>
