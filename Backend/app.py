@@ -1,8 +1,4 @@
-# ============================================================
-#  Sendrr Webmail App -- Flask Backend (app.py)
-#  Drop this file in your /Backend folder.
-#  Run it with: python3 app.py
-# ============================================================
+
 
 from flask import Flask, request, jsonify, session, redirect, url_for, send_from_directory
 import pymysql
@@ -11,10 +7,7 @@ import os
 app = Flask(__name__, static_folder="../Frontend")
 app.secret_key = "sendrr_secret_key"  # used to encrypt session cookies
 
-# ============================================================
-#  DATABASE CONNECTION
-#  Change DB_USER and DB_PASSWORD to match your MySQL setup.
-# ============================================================
+
 DB_HOST = "localhost"
 DB_USER = "root"        # change this if your MySQL user is different
 DB_PASSWORD = ""        # change this to your MySQL root password
@@ -30,11 +23,6 @@ def get_db():
         cursorclass=pymysql.cursors.DictCursor  # returns rows as dictionaries
     )
 
-
-# ============================================================
-#  SERVE HTML PAGES
-#  These routes just send back the HTML files your group made.
-# ============================================================
 
 @app.route("/")
 def index():
@@ -62,11 +50,8 @@ def admin_page():
     return send_from_directory("../Frontend", "adminpage.html")
 
 
-# ============================================================
-#  AUTHENTICATION ROUTES
-# ============================================================
 
-# SIGNUP -- creates a new user account
+
 @app.route("/api/signup", methods=["POST"])
 def signup():
     data = request.get_json()
@@ -84,7 +69,7 @@ def signup():
     if existing:
         return jsonify({"error": "Username or email already taken"}), 400
 
-    # Insert new user -- password stored plain text (intentionally insecure)
+
     cursor.execute(
         "INSERT INTO users (username, email, password, region) VALUES (%s, %s, %s, %s)",
         (username, email, password, region)
@@ -94,7 +79,6 @@ def signup():
     return jsonify({"message": "Account created successfully"}), 201
 
 
-# LOGIN -- checks credentials and starts a session
 @app.route("/api/login", methods=["POST"])
 def login():
     data = request.get_json()
@@ -104,8 +88,7 @@ def login():
     db = get_db()
     cursor = db.cursor()
 
-    # Vulnerable query -- no hashing, plain text password comparison
-    # Also vulnerable to SQL injection if you swap this for string formatting
+   
     cursor.execute("SELECT * FROM users WHERE email = %s AND password = %s", (email, password))
     user = cursor.fetchone()
 
@@ -139,11 +122,6 @@ def logout():
     return jsonify({"redirect": "/login"})
 
 
-# ============================================================
-#  EMAIL ROUTES
-# ============================================================
-
-# SEND EMAIL -- logged in user sends a message to another account
 @app.route("/api/send", methods=["POST"])
 def send_email():
     if "user_id" not in session:
@@ -197,12 +175,6 @@ def inbox():
     return jsonify(emails)
 
 
-# ============================================================
-#  ADMIN ROUTES
-#  These are only accessible if is_admin = 1 in the session
-# ============================================================
-
-# GET ALL USERS -- admin panel user table with optional search
 @app.route("/api/users", methods=["GET"])
 def get_users():
     if not session.get("is_admin"):
@@ -270,8 +242,6 @@ def get_sessions():
     return jsonify(sessions_data)
 
 
-# ============================================================
-#  RUN THE APP
-# ============================================================
+
 if __name__ == "__main__":
     app.run(debug=True, port=5050)
