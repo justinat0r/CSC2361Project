@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Sendrr - Inbox</title>
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f1f1f1;
+    min-height: 100vh;
+}
+
+.topbar {
+    background: #04AA6D;
+    color: white;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.topbar h1 {
+    font-size: 22px;
+}
+
+.topbar button {
+    background: white;
+    color: #04AA6D;
+    border: none;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.topbar button:hover {
+    background: #e0e0e0;
+}
+
+.main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    padding: 30px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.panel {
+    background: white;
+    padding: 25px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+h2 {
+    margin-bottom: 15px;
+    font-size: 18px;
+    color: #333;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+    font-size: 14px;
+}
+
+th {
+    background: #333;
+    color: white;
+}
+
+tr:hover {
+    background: #f9f9f9;
+    cursor: pointer;
+}
+
+.unread td {
+    font-weight: bold;
+}
+
+input[type=text],
+textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    font-family: Arial, sans-serif;
+}
+
+textarea {
+    height: 120px;
+    resize: vertical;
+}
+
+button.send {
+    background: #04AA6D;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 4px;
+}
+
+button.send:hover {
+    background: #038a58;
+}
+
+.message-box {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-top: 15px;
+    display: none;
+    font-size: 14px;
+}
+
+.message-box h3 {
+    margin-bottom: 8px;
+    font-size: 15px;
+}
+
+.success {
+    color: green;
+    font-size: 13px;
+    margin-bottom: 10px;
+    display: none;
+}
+
+.error {
+    color: red;
+    font-size: 13px;
+    margin-bottom: 10px;
+    display: none;
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+    <h1>Sendrr</h1>
+    <button onclick="logout()">Log Out</button>
+</div>
+
+<div class="main">
+
+    <!-- INBOX TABLE -->
+    <div class="panel">
+        <h2>Inbox</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>From</th>
+                    <th>Subject</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody id="inboxBody"></tbody>
+        </table>
+
+        <!-- Message preview when you click an email -->
+        <div class="message-box" id="messagePreview">
+            <h3 id="previewSubject"></h3>
+            <p><strong>From:</strong> <span id="previewFrom"></span></p>
+            <p><strong>Date:</strong> <span id="previewDate"></span></p>
+            <hr style="margin: 10px 0;">
+            <p id="previewBody"></p>
+        </div>
+    </div>
+
+    <!-- COMPOSE EMAIL -->
+    <div class="panel">
+        <h2>Compose</h2>
+        <div class="success" id="successMsg">Email sent!</div>
+        <div class="error" id="errorMsg"></div>
+
+        <label style="font-size:14px; font-weight:bold;">To</label>
+        <input type="text" id="toField" placeholder="recipient@sendrr.com">
+
+        <label style="font-size:14px; font-weight:bold;">Subject</label>
+        <input type="text" id="subjectField" placeholder="Subject">
+
+        <label style="font-size:14px; font-weight:bold;">Message</label>
+        <textarea id="bodyField" placeholder="Write your message here..."></textarea>
+
+        <button class="send" onclick="sendEmail()">Send</button>
+    </div>
+
+</div>
+
+<script>
+// Load inbox on page load
+window.onload = loadInbox;
+
+async function loadInbox() {
+    const res = await fetch("/api/inbox");
+    if (res.status === 401) {
+        window.location.href = "/login";
+        return;
+    }
+    const emails = await res.json();
+    const tbody = document.getElementById("inboxBody");
+    tbody.innerHTML = "";
+
+    if (emails.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:#aaa;'>No messages yet</td></tr>";
+        return;
+    }
+
+    emails.forEach(email => {
+        const row = document.createElement("tr");
+        if (!email.is_read) row.classList.add("unread");
+        row.innerHTML = `
+            <td>${email.sender}</td>
+            <td>${email.subject}</td>
+            <td>${email.sent_at.split(" ")[0]}</td>
+        `;
+        row.onclick = () => showMessage(email);
+        tbody.appendChild(row);
+    });
+}
+
+function showMessage(email) {
+    document.getElementById("previewSubject").textContent = email.subject;
+    document.getElementById("previewFrom").textContent = email.sender;
+    document.getElementById("previewDate").textContent = email.sent_at;
+    document.getElementById("previewBody").textContent = email.body;
+    document.getElementById("messagePreview").style.display = "block";
+}
+
+async function sendEmail() {
+    const to = document.getElementById("toField").value.trim();
+    const subject = document.getElementById("subjectField").value.trim();
+    const body = document.getElementById("bodyField").value.trim();
+    const successMsg = document.getElementById("successMsg");
+    const errorMsg = document.getElementById("errorMsg");
+
+    successMsg.style.display = "none";
+    errorMsg.style.display = "none";
+
+    if (!to || !body) {
+        errorMsg.style.display = "block";
+        errorMsg.textContent = "Please fill in the To and Message fields.";
+        return;
+    }
+
+    const res = await fetch("/api/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ to, subject, body })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+        successMsg.style.display = "block";
+        document.getElementById("toField").value = "";
+        document.getElementById("subjectField").value = "";
+        document.getElementById("bodyField").value = "";
+        loadInbox();
+    } else {
+        errorMsg.style.display = "block";
+        errorMsg.textContent = data.error || "Something went wrong.";
+    }
+}
+
+async function logout() {
+    await fetch("/api/logout", { method: "POST" });
+    window.location.href = "/login";
+}
+</script>
+</body>
+</html>

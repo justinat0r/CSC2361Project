@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Sendrr - Sign Up</title>
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f1f1f1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    background: white;
+    padding: 40px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+h1 {
+    color: #04AA6D;
+    margin-bottom: 5px;
+}
+
+h2 {
+    color: #333;
+    font-size: 18px;
+    margin-bottom: 20px;
+    font-weight: normal;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+input[type=text],
+input[type=password],
+select {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    background: #f9f9f9;
+    font-size: 14px;
+}
+
+input[type=text]:focus,
+input[type=password]:focus,
+select:focus {
+    background: #fff;
+    border-color: #04AA6D;
+    outline: none;
+}
+
+.checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+p {
+    font-size: 12px;
+    color: #777;
+    margin-bottom: 20px;
+}
+
+.buttons {
+    display: flex;
+    gap: 10px;
+}
+
+button {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 4px;
+}
+
+.canbt {
+    background: #ccc;
+    color: #333;
+}
+
+.canbt:hover {
+    background: #bbb;
+}
+
+.signbt {
+    background: #04AA6D;
+    color: white;
+}
+
+.signbt:hover {
+    background: #038a58;
+}
+
+.error {
+    color: red;
+    font-size: 13px;
+    margin-bottom: 10px;
+    display: none;
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>Sendrr</h1>
+    <h2>Sign up</h2>
+    <hr>
+
+    <div class="error" id="errorMsg"></div>
+
+    <label for="username">Account Name</label>
+    <input type="text" id="username" placeholder="Enter username" required>
+
+    <label for="email">Email</label>
+    <input type="text" id="email" placeholder="yourname@sendrr.com" required>
+
+    <label for="pword">Password</label>
+    <input type="password" id="pword" placeholder="Enter password" required>
+
+    <label for="rep-pword">Repeat Password</label>
+    <input type="password" id="rep-pword" placeholder="Repeat password" required>
+
+    <label for="loc">Region</label>
+    <select id="loc">
+        <option value="NA">North America</option>
+        <option value="CA">Central America</option>
+        <option value="SA">South America</option>
+        <option value="EEU">Eastern Europe</option>
+        <option value="WEU">Western Europe</option>
+        <option value="SWA">Southwestern Asia</option>
+        <option value="NEA">Northeastern Asia</option>
+        <option value="NAF">Northern Africa</option>
+        <option value="SAF">Southern Africa</option>
+        <option value="OC">Oceania</option>
+    </select>
+
+    <div class="checkbox-row">
+        <input type="checkbox" id="remember" checked>
+        <label for="remember" style="margin:0; font-weight:normal;">Remember me</label>
+    </div>
+
+    <p>By creating an account, you are agreeing to our Terms & Services.</p>
+
+    <div class="buttons">
+        <button class="canbt" onclick="window.location.href='/login'">Cancel</button>
+        <button class="signbt" onclick="signup()">Sign Up</button>
+    </div>
+</div>
+
+<script>
+async function signup() {
+    const username = document.getElementById("username").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("pword").value;
+    const repeatPassword = document.getElementById("rep-pword").value;
+    const region = document.getElementById("loc").value;
+    const errorMsg = document.getElementById("errorMsg");
+
+    // Basic frontend validation
+    if (!username || !email || !password) {
+        errorMsg.style.display = "block";
+        errorMsg.textContent = "Please fill in all fields.";
+        return;
+    }
+
+    if (password !== repeatPassword) {
+        errorMsg.style.display = "block";
+        errorMsg.textContent = "Passwords do not match.";
+        return;
+    }
+
+    // Send signup request to Flask backend
+    const response = await fetch("/api/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, email, password, region })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+        // Account created, redirect to login
+        window.location.href = "/login";
+    } else {
+        errorMsg.style.display = "block";
+        errorMsg.textContent = data.error || "Something went wrong.";
+    }
+}
+</script>
+</body>
+</html>
