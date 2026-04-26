@@ -30,7 +30,7 @@ def ratelimit_handler(e):
 # ============================================================
 DB_HOST = "localhost"
 DB_USER = "root"        # change this if your MySQL user is different
-DB_PASSWORD = "Firefly164"        # change this to your MySQL root password
+DB_PASSWORD = ""        # change this to your MySQL root password
 DB_NAME = "sendrr"
 
 def get_db():
