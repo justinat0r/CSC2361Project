@@ -78,6 +78,24 @@ def signup():
     password = data.get("password")
     region = data.get("region", "NA")
 
+    if not email.endswith("@sendrr.com"):
+        return jsonify({"error": "Email must end with @sendrr.com"}), 400
+    
+    if len(password) < 8:
+        return jsonify({"error": "Password must be at least 8 characters"}), 400
+
+    if not any(c.isupper() for c in password):
+        return jsonify({"error": "Password must contain at least one uppercase letter"}), 400
+
+    if not any(c.islower() for c in password):
+        return jsonify({"error": "Password must contain at least one lowercase letter"}), 400
+
+    if not any(c.isdigit() for c in password):
+        return jsonify({"error": "Password must contain at least one number"}), 400
+    
+    if not any(c in "!@#$%^&*()_+-=[]{}|;:,.<>?" for c in password):
+        return jsonify({"error": "Password must contain at least one special character"}), 400
+    
     db = get_db()
     cursor = db.cursor()
 
