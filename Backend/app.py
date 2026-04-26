@@ -5,19 +5,32 @@
 # ============================================================
 
 from flask import Flask, request, jsonify, session, redirect, url_for, send_from_directory
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+import secrets
 import pymysql
 import os
 
-app = Flask(__name__, static_folder="../Frontend")
-app.secret_key = "sendrr_secret_key"  # used to encrypt session cookies
 
+app = Flask(__name__, static_folder="../Frontend")
+app.secret_key = secrets.token_hex(32)  # used to encrypt session cookies
+limiter = Limiter(
+    key_func=get_remote_address,
+    app=app,
+    default_limits=["200 per day", "50 per hour"]
+)
+@app.errorhandler(429)
+def ratelimit_handler(e):
+    return jsonify({
+        "error": "Too many requests. Please slow down."
+    }), 429
 # ============================================================
 #  DATABASE CONNECTION
-#  Change DB_USER and DB_PASSWORD to match your MySQL setup.
+#  Change DB_USER and DB_PASSWORD tpip install flasko match your MySQL setup.
 # ============================================================
 DB_HOST = "localhost"
 DB_USER = "root"        # change this if your MySQL user is different
-DB_PASSWORD = ""        # change this to your MySQL root password
+DB_PASSWORD = "Firefly164"        # change this to your MySQL root password
 DB_NAME = "sendrr"
 
 def get_db():
@@ -30,7 +43,10 @@ def get_db():
         cursorclass=pymysql.cursors.DictCursor  # returns rows as dictionaries
     )
 
-
+def login_rate_limit_key():
+    data = request.get_json(silent=True) or {}
+    email = data.get("email", "")
+    return f"{get_remote_address()}:{email}"
 # ============================================================
 #  SERVE HTML PAGES
 #  These routes just send back the HTML files your group made.
@@ -68,6 +84,8 @@ def admin_page():
 
 # SIGNUP -- creates a new user account
 @app.route("/api/signup", methods=["POST"])
+@limiter.limit("3 per minute")
+@limiter.limit("10 per hour")
 def signup():
     data = request.get_json()
     username = data.get("username")
@@ -96,6 +114,8 @@ def signup():
 
 # LOGIN -- checks credentials and starts a session
 @app.route("/api/login", methods=["POST"])
+@limiter.limit("5 per minute", key_func=login_rate_limit_key)
+@limiter.limit("20 per hour", key_func=login_rate_limit_key)
 def login():
     data = request.get_json()
     email = data.get("email")
@@ -145,6 +165,7 @@ def logout():
 
 # SEND EMAIL -- logged in user sends a message to another account
 @app.route("/api/send", methods=["POST"])
+@limiter.limit("30 per minute")
 def send_email():
     if "user_id" not in session:
         return jsonify({"error": "Not logged in"}), 401
