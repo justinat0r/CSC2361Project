@@ -10,6 +10,11 @@ import bcrypt
 
 app = Flask(__name__, static_folder="../Frontend")
 app.secret_key = secrets.token_hex(32)  
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_SAMESITE="Lax"
+)
 limiter = Limiter(
     key_func=get_remote_address,
     app=app,
@@ -23,7 +28,7 @@ def ratelimit_handler(e):
 
 DB_HOST = "localhost"
 DB_USER = "root"     
-DB_PASSWORD = ""       
+DB_PASSWORD = "Firefly164"       
 DB_NAME = "sendrr"
 
 def get_db():
@@ -66,8 +71,6 @@ def admin_page():
         return redirect(url_for("login_page"))
     return send_from_directory("../Frontend", "adminpage.html")
 
-
-
 @app.route("/api/signup", methods=["POST"])
 @limiter.limit("3 per minute")
 @limiter.limit("10 per hour")
@@ -78,7 +81,7 @@ def signup():
     password = data.get("password")
     region = data.get("region", "NA")
 
-    if not email.endswith("@sendrr.com"):
+    if not email.lower().endswith("@sendrr.com"):
         return jsonify({"error": "Email must end with @sendrr.com"}), 400
     
     if len(password) < 8:
@@ -230,8 +233,13 @@ def get_users():
     cursor = db.cursor()
 
     
-    query = "SELECT user_id AS id, username AS name, email, region, is_admin, created_at FROM users WHERE username LIKE '%" + search + "%' OR email LIKE '%" + search + "%'"
-    cursor.execute(query)
+    like_search = f"%{search}%"
+
+    cursor.execute("""
+        SELECT user_id AS id, username AS name, email, region, is_admin, created_at
+        FROM users
+        WHERE username LIKE %s OR email LIKE %s
+    """, (like_search, like_search))
     users = cursor.fetchall()
     db.close()
 
@@ -251,9 +259,15 @@ def get_messages():
     db = get_db()
     cursor = db.cursor()
 
-    
-    query = "SELECT email_id AS id, sender_id AS user_id, subject AS message, sent_at AS date FROM emails WHERE subject LIKE '%" + search + "%' OR body LIKE '%" + search + "%'"
-    cursor.execute(query)
+    like_search = f"%{search}%"
+    cursor.execute("""
+        SELECT email_id AS id,
+               sender_id AS user_id,
+               subject AS message,
+               sent_at AS date
+        FROM emails
+        WHERE subject LIKE %s OR body LIKE %s
+    """, (like_search, like_search))
     messages = cursor.fetchall()
     db.close()
 

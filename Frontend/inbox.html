@@ -204,39 +204,73 @@ button.send:hover {
 // Load inbox on page load
 window.onload = loadInbox;
 
+function clearTable(tbody) {
+    while (tbody.firstChild) {
+        tbody.removeChild(tbody.firstChild);
+    }
+}
+
+function createCell(value) {
+    const td = document.createElement("td");
+    td.textContent = value ?? "";
+    return td;
+}
+
+function emptyRow(colspan, text) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+    td.colSpan = colspan;
+    td.textContent = text;
+    td.style.textAlign = "center";
+    td.style.color = "#aaa";
+    tr.appendChild(td);
+    return tr;
+}
+
 async function loadInbox() {
     const res = await fetch("/api/inbox");
     if (res.status === 401) {
         window.location.href = "/login";
         return;
     }
+
     const emails = await res.json();
     const tbody = document.getElementById("inboxBody");
-    tbody.innerHTML = "";
 
-    if (emails.length === 0) {
-        tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:#aaa;'>No messages yet</td></tr>";
+    clearTable(tbody);
+
+    if (!emails.length) {
+        tbody.appendChild(emptyRow(3, "No messages yet"));
         return;
     }
 
     emails.forEach(email => {
         const row = document.createElement("tr");
-        if (!email.is_read) row.classList.add("unread");
-        row.innerHTML = `
-            <td>${email.sender}</td>
-            <td>${email.subject}</td>
-            <td>${email.sent_at.split(" ")[0]}</td>
-        `;
+
+        if (!email.is_read) {
+            row.classList.add("unread");
+        }
+
+        // SAFE rendering (no HTML injection possible)
+        row.appendChild(createCell(email.sender));
+        row.appendChild(createCell(email.subject));
+
+        // safely handle date without string splitting assumptions
+        const date = email.sent_at ? String(email.sent_at).split(" ")[0] : "";
+        row.appendChild(createCell(date));
+
         row.onclick = () => showMessage(email);
+
         tbody.appendChild(row);
     });
 }
 
 function showMessage(email) {
-    document.getElementById("previewSubject").textContent = email.subject;
-    document.getElementById("previewFrom").textContent = email.sender;
-    document.getElementById("previewDate").textContent = email.sent_at;
-    document.getElementById("previewBody").textContent = email.body;
+    document.getElementById("previewSubject").textContent = email.subject ?? "";
+    document.getElementById("previewFrom").textContent = email.sender ?? "";
+    document.getElementById("previewDate").textContent = email.sent_at ?? "";
+    document.getElementById("previewBody").textContent = email.body ?? "";
+
     document.getElementById("messagePreview").style.display = "block";
 }
 
@@ -244,6 +278,7 @@ async function sendEmail() {
     const to = document.getElementById("toField").value.trim();
     const subject = document.getElementById("subjectField").value.trim();
     const body = document.getElementById("bodyField").value.trim();
+
     const successMsg = document.getElementById("successMsg");
     const errorMsg = document.getElementById("errorMsg");
 

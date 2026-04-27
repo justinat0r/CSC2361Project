@@ -1,112 +1,73 @@
 <!DOCTYPE html>
+
 <html>
 <head>
 <title>Sendrr - Admin Dashboard</title>
 <style>
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
-body {
-    font-family: Arial, sans-serif;
-    background: #f5f5f5;
-    min-height: 100vh;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background: #f5f5f5; min-height: 100vh; }
 
 .topbar {
-    background: #333;
-    color: white;
-    padding: 15px 30px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.topbar h1 {
-    font-size: 20px;
+background: #333;
+color: white;
+padding: 15px 30px;
+display: flex;
+justify-content: space-between;
+align-items: center;
 }
 
 .topbar button {
-    background: #04AA6D;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    cursor: pointer;
-    border-radius: 4px;
-    font-size: 13px;
-}
-
-.topbar button:hover {
-    background: #038a58;
+background: #04AA6D;
+color: white;
+border: none;
+padding: 8px 16px;
+cursor: pointer;
+border-radius: 4px;
+font-size: 13px;
 }
 
 .main {
-    padding: 30px;
-    max-width: 1200px;
-    margin: 0 auto;
+padding: 30px;
+max-width: 1200px;
+margin: 0 auto;
 }
 
 .grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 30px;
-    margin-bottom: 30px;
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 30px;
+margin-bottom: 30px;
 }
 
-.panel {
-    background: white;
-    padding: 25px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.panel h2 {
-    margin-bottom: 15px;
-    font-size: 18px;
-    color: #333;
-}
-
-.full-width {
-    background: white;
-    padding: 25px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+.panel, .full-width {
+background: white;
+padding: 25px;
+box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 input {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    font-size: 14px;
-}
-
-input:focus {
-    outline: none;
-    border-color: #04AA6D;
+width: 100%;
+padding: 8px;
+margin-bottom: 10px;
+border: 1px solid #ccc;
 }
 
 table {
-    width: 100%;
-    border-collapse: collapse;
+width: 100%;
+border-collapse: collapse;
 }
 
 th, td {
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-    text-align: left;
-    font-size: 13px;
+padding: 10px;
+border-bottom: 1px solid #ddd;
+font-size: 13px;
 }
 
 th {
-    background: #333;
-    color: white;
-}
+background: #333;
+color: white;
+} </style>
 
-tr:hover {
-    background: #f9f9f9;
-}
-</style>
 </head>
 <body>
 
@@ -117,62 +78,61 @@ tr:hover {
 
 <div class="main">
 
-    <div class="grid">
+```
+<div class="grid">
 
-        <!-- USERS TABLE -->
-        <div class="panel">
-            <h2>Users</h2>
-            <input id="userSearch" placeholder="Search users..." oninput="loadUsers()">
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Username</th>
-                        <th>Email</th>
-                        <th>Region</th>
-                        <th>Admin</th>
-                    </tr>
-                </thead>
-                <tbody id="usersBody"></tbody>
-            </table>
-        </div>
-
-        <!-- MESSAGES TABLE -->
-        <div class="panel">
-            <h2>Messages</h2>
-            <input id="messageSearch" placeholder="Search messages..." oninput="loadMessages()">
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>From (User ID)</th>
-                        <th>Subject</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody id="messagesBody"></tbody>
-            </table>
-        </div>
-
-    </div>
-
-    <!-- LOGIN ACTIVITY TABLE -->
-    <div class="full-width">
-        <h2>Login Activity</h2>
+    <div class="panel">
+        <h2>Users</h2>
+        <input id="userSearch" placeholder="Search users..." oninput="loadUsers()">
         <table>
             <thead>
                 <tr>
-                    <th>Session ID</th>
+                    <th>ID</th>
                     <th>Username</th>
                     <th>Email</th>
-                    <th>IP Address</th>
-                    <th>Login Time</th>
-                    <th>Active</th>
+                    <th>Region</th>
+                    <th>Admin</th>
                 </tr>
             </thead>
-            <tbody id="sessionsBody"></tbody>
+            <tbody id="usersBody"></tbody>
         </table>
     </div>
+
+    <div class="panel">
+        <h2>Messages</h2>
+        <input id="messageSearch" placeholder="Search messages..." oninput="loadMessages()">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>From (User ID)</th>
+                    <th>Subject</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody id="messagesBody"></tbody>
+        </table>
+    </div>
+
+</div>
+
+<div class="full-width">
+    <h2>Login Activity</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Session ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>IP Address</th>
+                <th>Login Time</th>
+                <th>Active</th>
+            </tr>
+        </thead>
+        <tbody id="sessionsBody"></tbody>
+    </table>
+</div>
+```
 
 </div>
 
@@ -181,70 +141,111 @@ window.onload = function() {
     loadUsers();
     loadMessages();
     loadSessions();
+};
+
+// Utility: clear table safely
+function clearTable(tbody) {
+    while (tbody.firstChild) {
+        tbody.removeChild(tbody.firstChild);
+    }
+}
+
+// Utility: create safe cell
+function createCell(value) {
+    const td = document.createElement("td");
+    td.textContent = value ?? "";
+    return td;
+}
+
+// Utility: empty state row
+function emptyRow(colspan, text) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+    td.colSpan = colspan;
+    td.textContent = text;
+    td.style.textAlign = "center";
+    td.style.color = "#aaa";
+    tr.appendChild(td);
+    return tr;
 }
 
 async function loadUsers() {
     const search = document.getElementById("userSearch").value;
-    const res = await fetch(`/api/users?search=${search}`);
+    const res = await fetch(`/api/users?search=${encodeURIComponent(search)}`);
     if (res.status === 403) { window.location.href = "/login"; return; }
+
     const users = await res.json();
     const tbody = document.getElementById("usersBody");
-    tbody.innerHTML = "";
-    if (users.length === 0) {
-        tbody.innerHTML = "<tr><td colspan='5' style='text-align:center;color:#aaa;'>No users found</td></tr>";
+    clearTable(tbody);
+
+    if (!users.length) {
+        tbody.appendChild(emptyRow(5, "No users found"));
         return;
     }
+
     users.forEach(u => {
-        tbody.innerHTML += `<tr>
-            <td>${u.id}</td>
-            <td>${u.name}</td>
-            <td>${u.email}</td>
-            <td>${u.region}</td>
-            <td>${u.is_admin ? "Yes" : "No"}</td>
-        </tr>`;
+        const tr = document.createElement("tr");
+
+        tr.appendChild(createCell(u.id));
+        tr.appendChild(createCell(u.name));
+        tr.appendChild(createCell(u.email));
+        tr.appendChild(createCell(u.region));
+        tr.appendChild(createCell(u.is_admin ? "Yes" : "No"));
+
+        tbody.appendChild(tr);
     });
 }
 
 async function loadMessages() {
     const search = document.getElementById("messageSearch").value;
-    const res = await fetch(`/api/messages?search=${search}`);
+    const res = await fetch(`/api/messages?search=${encodeURIComponent(search)}`);
     if (res.status === 403) { window.location.href = "/login"; return; }
+
     const messages = await res.json();
     const tbody = document.getElementById("messagesBody");
-    tbody.innerHTML = "";
-    if (messages.length === 0) {
-        tbody.innerHTML = "<tr><td colspan='4' style='text-align:center;color:#aaa;'>No messages found</td></tr>";
+    clearTable(tbody);
+
+    if (!messages.length) {
+        tbody.appendChild(emptyRow(4, "No messages found"));
         return;
     }
+
     messages.forEach(m => {
-        tbody.innerHTML += `<tr>
-            <td>${m.id}</td>
-            <td>${m.user_id}</td>
-            <td>${m.message}</td>
-            <td>${m.date}</td>
-        </tr>`;
+        const tr = document.createElement("tr");
+
+        tr.appendChild(createCell(m.id));
+        tr.appendChild(createCell(m.user_id));
+        tr.appendChild(createCell(m.message));
+        tr.appendChild(createCell(m.date));
+
+        tbody.appendChild(tr);
     });
 }
 
 async function loadSessions() {
     const res = await fetch("/api/sessions");
     if (res.status === 403) { window.location.href = "/login"; return; }
+
     const sessions = await res.json();
     const tbody = document.getElementById("sessionsBody");
-    tbody.innerHTML = "";
-    if (sessions.length === 0) {
-        tbody.innerHTML = "<tr><td colspan='6' style='text-align:center;color:#aaa;'>No login activity yet</td></tr>";
+    clearTable(tbody);
+
+    if (!sessions.length) {
+        tbody.appendChild(emptyRow(6, "No login activity yet"));
         return;
     }
+
     sessions.forEach(s => {
-        tbody.innerHTML += `<tr>
-            <td>${s.session_id}</td>
-            <td>${s.username}</td>
-            <td>${s.email}</td>
-            <td>${s.ip_address}</td>
-            <td>${s.login_at}</td>
-            <td>${s.is_active ? "Yes" : "No"}</td>
-        </tr>`;
+        const tr = document.createElement("tr");
+
+        tr.appendChild(createCell(s.session_id));
+        tr.appendChild(createCell(s.username));
+        tr.appendChild(createCell(s.email));
+        tr.appendChild(createCell(s.ip_address));
+        tr.appendChild(createCell(s.login_at));
+        tr.appendChild(createCell(s.is_active ? "Yes" : "No"));
+
+        tbody.appendChild(tr);
     });
 }
 
@@ -253,5 +254,7 @@ async function logout() {
     window.location.href = "/login";
 }
 </script>
+
 </body>
 </html>
+
