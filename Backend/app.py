@@ -28,7 +28,7 @@ def ratelimit_handler(e):
 
 DB_HOST = "localhost"
 DB_USER = "root"     
-DB_PASSWORD = "Firefly164"       
+DB_PASSWORD = "INSERT PASSWORD HERE"       
 DB_NAME = "sendrr"
 
 def get_db():
